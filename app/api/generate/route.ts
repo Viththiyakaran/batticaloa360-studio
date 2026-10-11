@@ -20,7 +20,7 @@ export async function POST(request: Request) {
   const prompt = type === "caption" ? tamilCaptionPrompt(item) : tamilArticlePrompt(item);
   if (process.env.GEMINI_API_KEY) {
     try {
-      const model = process.env.GEMINI_TEXT_MODEL || "gemini-2.5-flash";
+      const model = process.env.GEMINI_TEXT_MODEL || "gemini-3.8-flash";
       const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`, {
         method: "POST",
         headers: { "Content-Type": "application/json", "x-goog-api-key": process.env.GEMINI_API_KEY },
