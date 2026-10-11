@@ -14,7 +14,7 @@ A private, mobile-responsive editorial workspace for discovering Batticaloa news
 - Deterministic no-credential mock content that is explicitly labelled
 - Editable Facebook caption and Blogger article views
 - Working full-caption clipboard copy with feedback
-- Tamil-safe Canvas image compositor, templates, photo upload and native-resolution PNG/JPG download
+- Tamil-safe Canvas image compositor, Gemini backgrounds, Batticaloa360 branding, photo upload and native-resolution PNG/JPG download
 - Supabase schema for all requested entities, indexes, RLS and Storage policies
 - Hourly Vercel cron entry, health route, environment template and prompt tests
 
@@ -51,7 +51,7 @@ The service-role key is server-only. OAuth tokens are modelled as encrypted cred
 
 ## AI configuration
 
-For Gemini, set `GEMINI_API_KEY` and optionally `GEMINI_TEXT_MODEL`. Gemini is preferred when both providers are configured. Alternatively, set `OPENAI_API_KEY` and optionally `OPENAI_TEXT_MODEL`. Requests are made only in the server Route Handler, so no API key reaches the browser. Without either key, the application returns labelled deterministic drafts so the UI can be evaluated without cost.
+For Gemini, set `GEMINI_API_KEY` and optionally `GEMINI_TEXT_MODEL` and `GEMINI_IMAGE_MODEL`. Gemini is preferred when both text providers are configured. Image Studio sends the visual brief to Gemini through a server Route Handler, then applies the Tamil headline and Batticaloa360 logo locally for accurate branding. API keys never reach the browser. Without a text-provider key, content generation returns labelled deterministic drafts; image generation requires Gemini configuration.
 
 ## Deployment
 
@@ -76,7 +76,7 @@ npm run build
 ## Current limitations / next phases
 
 - RSS/API adapters and durable CRUD need to be connected to the Supabase repositories (the schema and UI contracts are ready).
-- The generated background button currently uses an economical procedural template; paid AI backgrounds are not yet connected.
+- Gemini image generation consumes provider quota; editors must review generated backgrounds and save an approved version explicitly.
 - Production workflow changes should be smoke-tested with an authenticated administrator and a verified public source.
 - Video/TTS/Remotion rendering is Phase 3 and requires a separate worker.
 - Blogger and Facebook OAuth/publishing are Phase 4 and require verified provider permissions.

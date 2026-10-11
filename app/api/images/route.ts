@@ -14,7 +14,8 @@ const metadataSchema = z.object({
   category: z.string().max(100).optional(),
   format: z.string().max(40).optional(),
   fontSize: z.coerce.number().int().min(24).max(160).optional(),
-  generationType: z.enum(["procedural", "licensed_photo"]).default("procedural"),
+  prompt: z.string().max(3000).optional(),
+  generationType: z.enum(["procedural", "licensed_photo", "gemini"]).default("procedural"),
 });
 
 export async function GET(request: Request) {
@@ -53,6 +54,7 @@ export async function POST(request: Request) {
     category: form.get("category"),
     format: form.get("format"),
     fontSize: form.get("fontSize"),
+    prompt: form.get("prompt") || undefined,
     generationType: form.get("generationType") || "procedural",
   });
   if (!(file instanceof File) || !parsed.success) return Response.json({ error: "Invalid image upload." }, { status: 400 });
@@ -80,10 +82,12 @@ export async function POST(request: Request) {
     category: parsed.data.category ?? "",
     format: parsed.data.format ?? "square",
     fontSize: parsed.data.fontSize ?? 76,
+    imagePrompt: parsed.data.prompt ?? "",
     generationType: parsed.data.generationType,
   };
   const { data, error } = await context.supabase.from("generated_images").insert({
     news_item_id: parsed.data.newsItemId ?? null,
+    prompt: parsed.data.prompt ?? null,
     storage_path: storagePath,
     public_url: publicUrl,
     template: parsed.data.template,
