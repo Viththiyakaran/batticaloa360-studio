@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { canTransition, isEditorialStatus, nextVersion } from "@/lib/editorial/workflow";
+import { decodeHtmlEntities, decodeHtmlValue } from "@/lib/text/html";
 import { requireStaff } from "@/lib/supabase/auth";
 import type { Json } from "@/lib/supabase/database.types";
 
@@ -20,7 +21,8 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
   history = current.data.news_item_id ? history.eq("news_item_id", current.data.news_item_id) : history.is("news_item_id", null);
   const rows = await history;
   if (rows.error) return Response.json({ error: rows.error.message }, { status: 500 });
-  return Response.json({ post: current.data, versions: rows.data ?? [] });
+  const normalize = (post: typeof current.data) => ({ ...post, title: post.title ? decodeHtmlEntities(post.title) : null, body: decodeHtmlEntities(post.body), metadata: decodeHtmlValue(post.metadata) as Json });
+  return Response.json({ post: normalize(current.data), versions: (rows.data ?? []).map(normalize) });
 }
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -53,9 +55,9 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   const { data, error } = await context.supabase.from("generated_posts").insert({
     news_item_id: selected.data.news_item_id,
     platform: selected.data.platform,
-    title: parsed.data.title !== undefined ? parsed.data.title : selected.data.title,
-    body: parsed.data.body ?? selected.data.body,
-    metadata: (parsed.data.metadata ?? selected.data.metadata) as Json,
+    title: parsed.data.title !== undefined ? parsed.data.title : selected.data.title ? decodeHtmlEntities(selected.data.title) : null,
+    body: parsed.data.body ?? decodeHtmlEntities(selected.data.body),
+    metadata: (parsed.data.metadata ?? decodeHtmlValue(selected.data.metadata)) as Json,
     version: nextVersion(previous.data),
     workflow_status: targetStatus,
     created_by: context.user.id,

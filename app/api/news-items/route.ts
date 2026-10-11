@@ -1,4 +1,5 @@
 import { requireStaff } from "@/lib/supabase/auth";
+import { decodeHtmlEntities } from "@/lib/text/html";
 
 export async function GET(request: Request) {
   const { context, response } = await requireStaff();
@@ -12,5 +13,5 @@ export async function GET(request: Request) {
   const categoryIds = [...new Set((data ?? []).map((item) => item.category_id).filter(Boolean))] as string[];
   const categories = categoryIds.length ? await context.supabase.from("categories").select("id,name").in("id", categoryIds) : { data: [] };
   const names = new Map((categories.data ?? []).map((category) => [category.id, category.name]));
-  return Response.json({ items: (data ?? []).map((item) => ({ ...item, category_name: item.category_id ? names.get(item.category_id) : "செய்திகள்" })) });
+  return Response.json({ items: (data ?? []).map((item) => ({ ...item, headline: decodeHtmlEntities(item.headline), summary: item.summary ? decodeHtmlEntities(item.summary) : null, category_name: item.category_id ? names.get(item.category_id) : "செய்திகள்" })) });
 }

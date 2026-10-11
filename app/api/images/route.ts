@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { imageWorkflowMetadata } from "@/lib/editorial/workflow";
+import { decodeHtmlValue } from "@/lib/text/html";
 import { requireStaff } from "@/lib/supabase/auth";
 import type { Json } from "@/lib/supabase/database.types";
 
@@ -26,7 +27,7 @@ export async function GET(request: Request) {
   if (newsItemId) query = query.eq("news_item_id", newsItemId);
   const { data, error } = await query;
   if (error) return Response.json({ error: error.message }, { status: 500 });
-  const normalized = (data ?? []).map((image) => ({ ...image, metadata: imageWorkflowMetadata(image.metadata) }));
+  const normalized = (data ?? []).map((image) => ({ ...image, metadata: imageWorkflowMetadata(decodeHtmlValue(image.metadata)) }));
   if (includeHistory) return Response.json({ images: normalized, history: normalized });
   const current = new Map<string, (typeof normalized)[number]>();
   for (const image of normalized) {
@@ -62,7 +63,7 @@ export async function POST(request: Request) {
     const previous = await context.supabase.from("generated_images").select("metadata").eq("news_item_id", parsed.data.newsItemId).limit(500);
     if (previous.error) return Response.json({ error: previous.error.message }, { status: 500 });
     version = Math.max(0, ...(previous.data ?? []).map((row) => {
-      const metadata = imageWorkflowMetadata(row.metadata);
+      const metadata = imageWorkflowMetadata(decodeHtmlValue(row.metadata));
       return metadata.seriesId === seriesId ? Number(metadata.version) : 0;
     })) + 1;
   }

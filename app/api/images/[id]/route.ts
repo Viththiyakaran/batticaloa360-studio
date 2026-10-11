@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { canTransition, imageWorkflowMetadata } from "@/lib/editorial/workflow";
+import { decodeHtmlValue } from "@/lib/text/html";
 import { requireStaff } from "@/lib/supabase/auth";
 import type { Json } from "@/lib/supabase/database.types";
 
@@ -13,16 +14,16 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   if (!parsed.success) return Response.json({ error: "Invalid image workflow update." }, { status: 400 });
   const selected = await context.supabase.from("generated_images").select("*").eq("id", id).single();
   if (selected.error) return Response.json({ error: selected.error.message }, { status: 404 });
-  const metadata = imageWorkflowMetadata(selected.data.metadata);
+  const metadata = imageWorkflowMetadata(decodeHtmlValue(selected.data.metadata));
   let seriesQuery = context.supabase.from("generated_images").select("id,metadata,created_at").order("created_at", { ascending: false }).limit(500);
   seriesQuery = selected.data.news_item_id ? seriesQuery.eq("news_item_id", selected.data.news_item_id) : seriesQuery.is("news_item_id", null);
   const seriesRows = await seriesQuery;
   if (seriesRows.error) return Response.json({ error: seriesRows.error.message }, { status: 500 });
   const seriesId = typeof metadata.seriesId === "string" ? metadata.seriesId : selected.data.id;
   const current = (seriesRows.data ?? []).filter((row) => {
-    const rowMetadata = imageWorkflowMetadata(row.metadata);
+    const rowMetadata = imageWorkflowMetadata(decodeHtmlValue(row.metadata));
     return (typeof rowMetadata.seriesId === "string" ? rowMetadata.seriesId : row.id) === seriesId;
-  }).sort((left, right) => Number(imageWorkflowMetadata(right.metadata).version) - Number(imageWorkflowMetadata(left.metadata).version))[0];
+  }).sort((left, right) => Number(imageWorkflowMetadata(decodeHtmlValue(right.metadata)).version) - Number(imageWorkflowMetadata(decodeHtmlValue(left.metadata)).version))[0];
   if (current && current.id !== id) return Response.json({ error: "This image version is no longer current. Refresh before changing its workflow." }, { status: 409 });
   if (!canTransition(metadata.workflowStatus, parsed.data.workflowStatus)) return Response.json({ error: `Cannot move ${metadata.workflowStatus} image to ${parsed.data.workflowStatus}.` }, { status: 409 });
   if (parsed.data.workflowStatus === "approved" && context.role !== "admin") return Response.json({ error: "Only an administrator can approve images." }, { status: 403 });

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { decodeHtmlEntities } from "@/lib/text/html";
 import { requireStaff } from "@/lib/supabase/auth";
 
 const importSchema = z.object({ url: z.string().url().max(2048) });
@@ -22,9 +23,9 @@ export async function POST(request: Request) {
     const type = response.headers.get("content-type") ?? "";
     if (!type.includes("text/html") && !type.includes("xml")) throw new Error("Source is not an article or feed");
     const html = (await response.text()).slice(0, 1_000_000);
-    const title = html.match(/<title[^>]*>([^<]+)<\/title>/i)?.[1]?.replace(/\s+/g, " ").trim() ?? url.hostname;
+    const title = decodeHtmlEntities(html.match(/<title[^>]*>([^<]+)<\/title>/i)?.[1]?.replace(/\s+/g, " ").trim() ?? url.hostname);
     const description = html.match(/<meta[^>]+(?:name|property)=[\"'](?:description|og:description)[\"'][^>]+content=[\"']([^\"']+)/i)?.[1] ?? "Imported source awaiting editorial review.";
-    const summary = description.replace(/<[^>]+>/g, "").slice(0, 320);
+    const summary = decodeHtmlEntities(description.replace(/<[^>]+>/g, "")).slice(0, 320);
     const bytes = new TextEncoder().encode((title + "|" + summary).toLowerCase());
     const fingerprint = Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256", bytes))).map((b) => b.toString(16).padStart(2, "0")).join("");
     const category = await context.supabase.from("categories").select("id").eq("slug", "news").single();

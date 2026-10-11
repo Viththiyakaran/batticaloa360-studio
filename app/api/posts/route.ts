@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { currentVersions, nextVersion } from "@/lib/editorial/workflow";
+import { decodeHtmlEntities, decodeHtmlValue } from "@/lib/text/html";
 import { requireStaff } from "@/lib/supabase/auth";
 import type { Json } from "@/lib/supabase/database.types";
 
@@ -23,7 +24,7 @@ export async function GET(request: Request) {
   if (platform === "facebook" || platform === "blogger") query = query.eq("platform", platform);
   const { data, error } = await query;
   if (error) return Response.json({ error: error.message }, { status: 500 });
-  const rows = data ?? [];
+  const rows = (data ?? []).map((row) => ({ ...row, title: row.title ? decodeHtmlEntities(row.title) : null, body: decodeHtmlEntities(row.body), metadata: decodeHtmlValue(row.metadata) as Json }));
   return Response.json({ posts: includeHistory ? rows : currentVersions(rows), history: includeHistory ? rows : undefined });
 }
 
