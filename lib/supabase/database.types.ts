@@ -1,0 +1,6 @@
+export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
+export type Database = { public: { Tables: {
+  profiles: { Row:{id:string;display_name:string|null;role:string;created_at:string}; Insert:{id:string;display_name?:string|null;role?:string}; Update:{display_name?:string|null;role?:string}; Relationships:[] };
+  news_sources: { Row:{id:string;name:string;url:string;source_type:string;active:boolean;created_at:string}; Insert:{id?:string;name:string;url:string;source_type?:string;active?:boolean}; Update:Partial<{name:string;url:string;source_type:string;active:boolean}>; Relationships:[] };
+  news_items: { Row:{id:string;headline:string;source_url:string;summary:string|null;category_id:string|null;verification_status:string;workflow_status:string;published_at:string|null;discovered_at:string}; Insert:{id?:string;headline:string;source_url:string;summary?:string|null;category_id?:string|null}; Update:Partial<{headline:string;summary:string|null;category_id:string|null;verification_status:string;workflow_status:string}>; Relationships:[] };
+}; Views: Record<string, never>; Functions: Record<string, never>; Enums: Record<string, never>; CompositeTypes: Record<string, never> } };

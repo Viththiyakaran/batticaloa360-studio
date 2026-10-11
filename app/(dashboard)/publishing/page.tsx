@@ -1,0 +1,2 @@
+import { PageHeader } from "@/components/page-header"; import { ComingModule } from "@/components/coming-module";
+export default function Publishing(){return <><PageHeader eyebrow="Approval required" title="Publishing Centre" description="Find → Verify → Generate → Edit → Approve → Publish"/><ComingModule phase="Phase 4">Google and Meta OAuth connections are intentionally disabled until authorised credentials are configured. Manual copy and downloads already work in the content and image studios.</ComingModule></>}

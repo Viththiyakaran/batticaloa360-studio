@@ -1,0 +1,11 @@
+"use client";
+import { useState } from "react";
+import { Globe2, Plus, Power, Trash2 } from "lucide-react";
+import { NewsSource } from "@/lib/types";
+
+const initial: NewsSource[] = [{ id: "1", name: "Batticaloa360", url: "https://batticaloa360.blogspot.com/feeds/posts/default", type: "rss", active: true, lastCheckedAt: null }];
+export function SourceManager() {
+  const [sources, setSources] = useState(initial); const [name,setName]=useState(""); const [url,setUrl]=useState("");
+  function add(e: React.FormEvent) { e.preventDefault(); setSources(s=>[...s,{id:crypto.randomUUID(),name,url,type:"rss",active:true,lastCheckedAt:null}]); setName("");setUrl(""); }
+  return <div className="grid gap-5 xl:grid-cols-[1.4fr_1fr]"><div className="card overflow-hidden"><div className="border-b border-[var(--border)] p-5"><h2 className="font-black">Approved sources</h2><p className="text-sm text-[var(--muted)]">Only active approved sources are used by scheduled discovery.</p></div>{sources.map(s=><div className="flex items-center gap-3 border-b border-[var(--border)] p-4 last:border-0" key={s.id}><span className="grid h-10 w-10 place-items-center rounded-xl bg-[var(--accent-soft)] text-[#f26a21]"><Globe2 size={18}/></span><div className="min-w-0 flex-1"><b className="block text-sm">{s.name}</b><span className="block truncate text-xs text-[var(--muted)]">{s.url}</span></div><button aria-label="Toggle source" className={`btn !p-2 ${s.active?"btn-primary":"btn-secondary"}`} onClick={()=>setSources(x=>x.map(v=>v.id===s.id?{...v,active:!v.active}:v))}><Power size={15}/></button><button aria-label="Remove source" className="btn btn-secondary !p-2 text-red-600" onClick={()=>setSources(x=>x.filter(v=>v.id!==s.id))}><Trash2 size={15}/></button></div>)}</div><form className="card h-fit p-5" onSubmit={add}><h2 className="mb-4 font-black">Add source</h2><label className="mb-1 block text-sm font-bold">Source name</label><input className="input mb-3" required value={name} onChange={e=>setName(e.target.value)}/><label className="mb-1 block text-sm font-bold">RSS or public URL</label><input className="input mb-4" type="url" required value={url} onChange={e=>setUrl(e.target.value)}/><button className="btn btn-primary w-full"><Plus size={17}/>Add approved source</button></form></div>;
+}

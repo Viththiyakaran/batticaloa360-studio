@@ -1,0 +1,2 @@
+import { PageHeader } from "@/components/page-header"; import { ComingModule } from "@/components/coming-module";
+export default function Videos(){return <><PageHeader eyebrow="Media production" title="Video Studio" description="Create vertical Tamil explainers with narration, timed subtitles and Batticaloa360 branding."/><ComingModule phase="Phase 3">The background rendering contract, Remotion composition and Tamil TTS provider adapter are scheduled after the content and approval workflow is stable.</ComingModule></>}

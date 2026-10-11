@@ -1,0 +1,65 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f5f6f4;
+  --foreground: #20211f;
+  --card: #ffffff;
+  --muted: #6f746d;
+  --border: #e4e6e1;
+  --accent: #f26a21;
+  --accent-soft: #fff0e8;
+}
+
+.dark {
+  --background: #111310;
+  --foreground: #f4f5f2;
+  --card: #191c18;
+  --muted: #a4aaa1;
+  --border: #2c302a;
+  --accent-soft: #362116;
+}
+
+* { box-sizing: border-box; }
+html { background: var(--background); }
+body {
+  margin: 0;
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, "Noto Sans Tamil", system-ui, sans-serif;
+}
+button, input, textarea, select { font: inherit; }
+button { cursor: pointer; }
+
+.card {
+  border: 1px solid var(--border);
+  background: var(--card);
+  border-radius: 1.1rem;
+  box-shadow: 0 1px 1px rgb(0 0 0 / 0.02);
+}
+.input {
+  width: 100%;
+  border: 1px solid var(--border);
+  background: var(--card);
+  border-radius: .75rem;
+  padding: .72rem .85rem;
+  outline: none;
+}
+.input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .45rem;
+  border-radius: .75rem;
+  padding: .7rem 1rem;
+  font-weight: 700;
+  transition: .18s ease;
+}
+.btn-primary { border: 1px solid var(--accent); background: var(--accent); color: white; }
+.btn-primary:hover { filter: brightness(.94); }
+.btn-secondary { border: 1px solid var(--border); background: var(--card); color: var(--foreground); }
+.btn-secondary:hover { background: var(--accent-soft); border-color: var(--accent); }
+.badge { display: inline-flex; align-items: center; border-radius: 999px; padding: .28rem .55rem; font-size: .72rem; font-weight: 700; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.spin { animation: spin 1s linear infinite; }
+
