@@ -10,7 +10,7 @@ A private, mobile-responsive editorial workspace for discovering Batticaloa news
 - Manual public URL import with validation, timeouts, private-network blocking and duplicate URL checks
 - Source management UI and approved-source model
 - News filtering, evidence links and manual verification
-- Server-side OpenAI caption/article generation with grounded prompts
+- Server-side Gemini or OpenAI caption/article generation with grounded prompts
 - Deterministic no-credential mock content that is explicitly labelled
 - Editable Facebook caption and Blogger article views
 - Working full-caption clipboard copy with feedback
@@ -40,9 +40,9 @@ Open `http://localhost:3000`. With `NEXT_PUBLIC_DEMO_MODE=true`, the login scree
 
 The service-role key is server-only. OAuth tokens are modelled as encrypted credentials; configure a proper key-management service before enabling publishing.
 
-## OpenAI configuration
+## AI configuration
 
-Set `OPENAI_API_KEY` and optionally `OPENAI_TEXT_MODEL`. Requests are made only in the server Route Handler. No API key reaches the browser. OpenAI API usage is billed separately from ChatGPT subscriptions. Without a key, the application returns labelled deterministic drafts so the UI can be evaluated without cost.
+For Gemini, set `GEMINI_API_KEY` and optionally `GEMINI_TEXT_MODEL`. Gemini is preferred when both providers are configured. Alternatively, set `OPENAI_API_KEY` and optionally `OPENAI_TEXT_MODEL`. Requests are made only in the server Route Handler, so no API key reaches the browser. Without either key, the application returns labelled deterministic drafts so the UI can be evaluated without cost.
 
 ## Deployment
 
