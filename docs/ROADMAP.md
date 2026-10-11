@@ -4,11 +4,11 @@ This roadmap prioritises a reliable editorial workflow before expensive media ge
 
 ## Current status
 
-The Phase 1 foundation is deployed on Netlify. The Supabase schema, row-level security policies, Storage buckets and administrator profile are installed. The production publishable key is verified, and the editorial screens now use persistent Supabase data. A final interactive administrator sign-in smoke test remains.
+The Phase 1 foundation is deployed on Netlify. The Supabase schema, row-level security policies, Storage buckets and administrator profile are installed. The production publishable key and administrator sign-in are verified, and the editorial screens now use persistent Supabase data.
 
 ## Phase 1 - Working editorial MVP
 
-Status: **In progress - persistent editorial workflow complete, final production smoke test next**
+Status: **In progress - production login verified, end-to-end workflow smoke test next**
 
 - [x] Next.js App Router application with TypeScript and Tailwind CSS
 - [x] Responsive private dashboard with light and dark themes
@@ -21,7 +21,7 @@ Status: **In progress - persistent editorial workflow complete, final production
 - [x] Tamil-safe branded image compositor with PNG/JPG downloads
 - [x] Safe development mode when paid credentials are unavailable
 - [x] Correct and independently verify the Netlify publishable-key value
-- [ ] Complete an interactive administrator login smoke test
+- [x] Complete an interactive administrator login smoke test
 - [x] Replace seeded news with persistent Supabase CRUD
 - [x] Persist sources, stories, verification decisions and drafts
 - [x] Upload generated images to Supabase Storage
