@@ -33,13 +33,15 @@ Exit criteria: an authenticated administrator can add a source, import or discov
 
 ## Phase 2 - Editorial workflow and content library
 
-Status: **Planned**
+Status: **In progress - persistent workflow implemented, production verification pending**
 
-- Complete the searchable Content Library with filters and previews
-- Add content version history and audit logging
-- Improve duplicate detection with URL normalization and content fingerprints
-- Add Draft, Ready for Review, Approved and Archived workflows
-- Require approval before every publishing action
+- [x] Complete the searchable Content Library with filters and previews
+- [x] Add immutable content and image version history
+- [x] Persist Draft, Ready for Review, Approved and Archived workflows
+- [x] Require a verified source and administrator approval before content approval
+- [x] Restore saved captions, articles and image settings after refresh and sign-in
+- [ ] Add broader entity-level audit logging
+- [ ] Improve duplicate detection with URL normalization and content fingerprints
 - Complete Blogger editing, SEO descriptions and label management
 - Add all requested image templates and background controls
 - Add monthly AI budgets, usage logs and generation limits

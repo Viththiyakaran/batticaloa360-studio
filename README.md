@@ -1,6 +1,6 @@
 # Batticaloa360 AI Content Studio
 
-A private, mobile-responsive editorial workspace for discovering Batticaloa news, verifying sources, drafting natural Tamil content, and composing branded graphics. This repository currently implements the Phase 1 MVP and leaves later external publishing and video modules visibly locked rather than simulating success.
+A private, mobile-responsive editorial workspace for discovering Batticaloa news, verifying sources, drafting natural Tamil content, and composing branded graphics. This repository implements the Phase 1 MVP and the persistent Phase 2 editorial workflow. Later external publishing and video modules remain visibly locked rather than simulating success.
 
 ## Implemented in Phase 1
 
@@ -17,6 +17,15 @@ A private, mobile-responsive editorial workspace for discovering Batticaloa news
 - Tamil-safe Canvas image compositor, templates, photo upload and native-resolution PNG/JPG download
 - Supabase schema for all requested entities, indexes, RLS and Storage policies
 - Hourly Vercel cron entry, health route, environment template and prompt tests
+
+## Implemented in Phase 2
+
+- Immutable Supabase versions for generated Facebook captions and Blogger articles
+- Persistent Draft, Ready for Review, Approved and Archived transitions
+- Administrator-only approval and verified-source review gates
+- Versioned Supabase image records with persisted editor settings and workflow state
+- Automatic restoration of current content and image settings after refresh or sign-in
+- Searchable content library with type/status filters, previews and version history
 
 ## Local setup
 
@@ -68,7 +77,7 @@ npm run build
 
 - RSS/API adapters and durable CRUD need to be connected to the Supabase repositories (the schema and UI contracts are ready).
 - The generated background button currently uses an economical procedural template; paid AI backgrounds are not yet connected.
-- Draft save is session-only until Supabase persistence is enabled.
+- Production workflow changes should be smoke-tested with an authenticated administrator and a verified public source.
 - Video/TTS/Remotion rendering is Phase 3 and requires a separate worker.
 - Blogger and Facebook OAuth/publishing are Phase 4 and require verified provider permissions.
 - Source similarity matching is represented by `content_fingerprint`; semantic similarity processing is pending.

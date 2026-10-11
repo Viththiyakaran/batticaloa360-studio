@@ -4,7 +4,7 @@ import { PageHeader } from "@/components/page-header";
 export default function Library() {
   return (
     <>
-      <PageHeader eyebrow="Editorial records" title="Content Library" description="Saved post drafts and generated images from Supabase." />
+      <PageHeader eyebrow="Editorial records" title="Content Library" description="Search current captions, articles and images, inspect workflow status, and review every immutable Supabase version." />
       <LibraryWorkspace />
     </>
   );

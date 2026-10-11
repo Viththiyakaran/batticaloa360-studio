@@ -1,12 +1,133 @@
 "use client";
-import { useEffect,useRef,useState } from "react";
-import { Download,ImagePlus,LoaderCircle,Save,Sparkles,Upload } from "lucide-react";
+
+import NextImage from "next/image";
+import { useEffect, useRef, useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Check, Download, History, ImagePlus, LoaderCircle, Save, Send, ShieldCheck, Sparkles, Upload } from "lucide-react";
+import { isEditorialStatus, statusLabel, type EditorialStatus } from "@/lib/editorial/workflow";
 import { categories } from "@/lib/types";
-const sizes={square:[1080,1080],portrait:[1080,1350],story:[1080,1920],blogger:[1200,630]} as const;
-const templates={Breaking:["#8c170e","#ef4b2f"],General:["#153438","#347c75"],Politics:["#30124d","#8547a8"],Education:["#0d3e68","#2e82ca"],Jobs:["#18462e","#4a9e69"],History:["#56361f","#b6814b"],Tourism:["#075a73","#22a8b7"],Temple:["#6c260d","#ed8a25"],Food:["#63213a","#d25771"],Community:["#26364d","#597caa"]} as const;type Template=keyof typeof templates;type Format=keyof typeof sizes;
-export function ImageStudio(){const canvas=useRef<HTMLCanvasElement>(null);const [headline,setHeadline]=useState("தமிழ் தலைப்பை இங்கே எழுதுங்கள்");const [category,setCategory]=useState("செய்திகள்");const [template,setTemplate]=useState<Template>("General");const [format,setFormat]=useState<Format>("square");const [fontSize,setFontSize]=useState(76);const [photo,setPhoto]=useState<HTMLImageElement|null>(null);const [notice,setNotice]=useState("");const [saving,setSaving]=useState(false);
-useEffect(()=>{const c=canvas.current;if(!c)return;const [w,h]=sizes[format];c.width=w;c.height=h;const x=c.getContext("2d");if(!x)return;const [a,b]=templates[template];const g=x.createLinearGradient(0,0,w,h);g.addColorStop(0,a);g.addColorStop(1,b);x.fillStyle=g;x.fillRect(0,0,w,h);if(photo){x.save();x.globalAlpha=.6;const s=Math.max(w/photo.width,h/photo.height);x.drawImage(photo,(w-photo.width*s)/2,(h-photo.height*s)/2,photo.width*s,photo.height*s);x.restore()}x.fillStyle="rgba(0,0,0,.34)";x.fillRect(0,0,w,h);x.fillStyle="#f26a21";x.fillRect(0,0,18,h);x.fillStyle="rgba(255,255,255,.16)";x.fillRect(70,70,Math.min(320,w-140),58);x.fillStyle="#fff";x.font="700 28px Arial";x.fillText(category,95,109);x.textBaseline="top";x.font="800 "+fontSize+"px Noto Sans Tamil, Nirmala UI, Arial";wrapText(x,headline,70,h*.34,w-140,fontSize*1.38);x.font="700 31px Arial";x.fillText("BATTICALOA",70,h-105);x.fillStyle="#f26a21";x.fillText("360",272,h-105);x.font="500 23px Arial";x.fillStyle="rgba(255,255,255,.8)";x.fillText("AI-assisted illustration - Editorial review required",70,h-61)},[headline,category,template,format,fontSize,photo]);
-function upload(file?:File){if(!file)return;const img=new Image();img.onload=()=>setPhoto(img);img.src=URL.createObjectURL(file)}function download(kind:"png"|"jpeg"){const c=canvas.current;if(!c)return;const a=document.createElement("a");a.href=c.toDataURL("image/"+kind,.92);a.download="batticaloa360-"+Date.now()+"."+(kind==="jpeg"?"jpg":"png");a.click();setNotice("Image downloaded.")}
-async function save(){const c=canvas.current;if(!c)return;setSaving(true);setNotice("");const blob=await new Promise<Blob|null>(resolve=>c.toBlob(resolve,"image/png"));if(!blob){setSaving(false);return}const [w,h]=sizes[format];const form=new FormData();form.set("file",blob,"batticaloa360.png");form.set("template",template);form.set("width",String(w));form.set("height",String(h));form.set("headline",headline);const r=await fetch("/api/images",{method:"POST",body:form});const b=await r.json().catch(()=>({}));setSaving(false);setNotice(r.ok?"Image saved to Supabase Storage.":b.error||"Save failed.")}
-return <div className="grid gap-5 xl:grid-cols-[360px_1fr]"><aside className="card h-fit space-y-4 p-5"><div><label className="mb-1.5 block text-sm font-black">Tamil headline</label><textarea className="input min-h-28 leading-7" lang="ta" value={headline} onChange={e=>setHeadline(e.target.value)}/></div><div><label className="mb-1.5 block text-sm font-black">Category</label><select className="input" value={category} onChange={e=>setCategory(e.target.value)}>{categories.map(c=><option key={c}>{c}</option>)}</select></div><div className="grid grid-cols-2 gap-3"><div><label className="mb-1.5 block text-sm font-black">Template</label><select className="input" value={template} onChange={e=>setTemplate(e.target.value as Template)}>{Object.keys(templates).map(t=><option key={t}>{t}</option>)}</select></div><div><label className="mb-1.5 block text-sm font-black">Format</label><select className="input" value={format} onChange={e=>setFormat(e.target.value as Format)}><option value="square">1080 × 1080</option><option value="portrait">1080 × 1350</option><option value="story">1080 × 1920</option><option value="blogger">1200 × 630</option></select></div></div><div><div className="mb-1.5 flex justify-between text-sm font-black"><label>Headline size</label><span>{fontSize}px</span></div><input className="w-full accent-[#f26a21]" type="range" min="44" max="104" value={fontSize} onChange={e=>setFontSize(Number(e.target.value))}/></div><label className="btn btn-secondary w-full"><Upload size={17}/>Upload licensed photograph<input className="hidden" type="file" accept="image/*" onChange={e=>upload(e.target.files?.[0])}/></label><button className="btn btn-secondary w-full" onClick={()=>{setPhoto(null);setTemplate("Tourism");setNotice("Economical generated background applied.")}}><Sparkles size={17}/>Generate background</button><p className="text-xs leading-5 text-[var(--muted)]">Tamil is rendered separately with Unicode shaping. Illustrations are labelled to avoid resembling event photography.</p></aside><section className="card p-4 md:p-6"><div className="mb-4 flex flex-wrap items-center justify-between gap-3"><div><h2 className="font-black">Live composition</h2><p className="text-sm text-[var(--muted)]">Export-ready at the selected native resolution.</p></div><div className="flex flex-wrap gap-2"><button className="btn btn-secondary" disabled={saving} onClick={save}>{saving?<LoaderCircle className="spin" size={16}/>:<Save size={16}/>}Save</button><button className="btn btn-secondary" onClick={()=>download("jpeg")}><ImagePlus size={16}/>JPG</button><button className="btn btn-primary" onClick={()=>download("png")}><Download size={16}/>PNG</button></div></div><div className="grid min-h-[540px] place-items-center overflow-hidden rounded-xl bg-neutral-200 p-3 dark:bg-neutral-900"><canvas ref={canvas} className="max-h-[720px] max-w-full rounded-lg shadow-2xl" aria-label="Generated Batticaloa360 image preview"/></div>{notice&&<p className="mt-3 text-sm font-bold" role="status">{notice}</p>}</section></div>}
-function wrapText(ctx:CanvasRenderingContext2D,text:string,x:number,y:number,maxWidth:number,lineHeight:number){const words=text.split(/\s+/);let line="";const lines:string[]=[];for(const word of words){const test=line?line+" "+word:word;if(ctx.measureText(test).width>maxWidth&&line){lines.push(line);line=word}else line=test}if(line)lines.push(line);lines.slice(0,5).forEach((l,i)=>ctx.fillText(l,x,y+i*lineHeight))}
+
+const sizes = {square:[1080,1080],portrait:[1080,1350],story:[1080,1920],blogger:[1200,630]} as const;
+const templates = {Breaking:["#8c170e","#ef4b2f"],General:["#153438","#347c75"],Politics:["#30124d","#8547a8"],Education:["#0d3e68","#2e82ca"],Jobs:["#18462e","#4a9e69"],History:["#56361f","#b6814b"],Tourism:["#075a73","#22a8b7"],Temple:["#6c260d","#ed8a25"],Food:["#63213a","#d25771"],Community:["#26364d","#597caa"]} as const;
+type Template = keyof typeof templates;
+type Format = keyof typeof sizes;
+type Story = {id:string;headline:string;category_name:string};
+type SavedImage = {id:string;news_item_id:string|null;public_url:string|null;template:string;width:number;height:number;metadata:Record<string,unknown>;created_at:string};
+type ImageDraft = {seriesId:string;headline:string;category:string;template:Template;format:Format;fontSize:number};
+
+async function json<T>(input:RequestInfo, init?:RequestInit):Promise<T> {
+  const response = await fetch(input, init);
+  const body = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(body.error || "Request failed.");
+  return body;
+}
+
+export function ImageStudio() {
+  const canvas = useRef<HTMLCanvasElement>(null);
+  const queryClient = useQueryClient();
+  const stories = useQuery({ queryKey:["news-items"], queryFn:() => json<{items:Story[]}>("/api/news-items") });
+  const [newsItemId,setNewsItemId] = useState("");
+  const selectedNewsItemId = newsItemId || stories.data?.items[0]?.id || "";
+  const selectedStory = stories.data?.items.find((story) => story.id === selectedNewsItemId);
+  const images = useQuery({ queryKey:["images",selectedNewsItemId], enabled:Boolean(selectedNewsItemId), queryFn:() => json<{images:SavedImage[]}>(`/api/images?newsItemId=${encodeURIComponent(selectedNewsItemId)}`) });
+  const currentImage = images.data?.images[0];
+  const metadata = currentImage?.metadata ?? {};
+  const persistedDraft:ImageDraft = {
+    seriesId:typeof metadata.seriesId === "string" ? metadata.seriesId : "",
+    headline:typeof metadata.headline === "string" ? metadata.headline : selectedStory?.headline ?? "தமிழ் தலைப்பை இங்கே எழுதுங்கள்",
+    category:typeof metadata.category === "string" ? metadata.category : selectedStory?.category_name || "செய்திகள்",
+    template:currentImage?.template && currentImage.template in templates ? currentImage.template as Template : "General",
+    format:typeof metadata.format === "string" && metadata.format in sizes ? metadata.format as Format : "square",
+    fontSize:typeof metadata.fontSize === "number" ? metadata.fontSize : 76,
+  };
+  const [draftEdit,setDraftEdit] = useState<{key:string;value:ImageDraft}|null>(null);
+  const draft = draftEdit?.key === selectedNewsItemId ? draftEdit.value : persistedDraft;
+  const {seriesId,headline,category,template,format,fontSize} = draft;
+  function updateDraft(update:Partial<ImageDraft>) { setDraftEdit({key:selectedNewsItemId,value:{...draft,...update}}); }
+  const [photo,setPhoto] = useState<HTMLImageElement|null>(null);
+  const [notice,setNotice] = useState("");
+  const [saving,setSaving] = useState(false);
+
+  useEffect(() => {
+    const element = canvas.current;
+    if (!element) return;
+    const [width,height] = sizes[format];
+    element.width = width;
+    element.height = height;
+    const context = element.getContext("2d");
+    if (!context) return;
+    const [start,end] = templates[template];
+    const gradient = context.createLinearGradient(0,0,width,height);
+    gradient.addColorStop(0,start);
+    gradient.addColorStop(1,end);
+    context.fillStyle = gradient;
+    context.fillRect(0,0,width,height);
+    if (photo) {
+      context.save(); context.globalAlpha = .6;
+      const scale = Math.max(width/photo.width,height/photo.height);
+      context.drawImage(photo,(width-photo.width*scale)/2,(height-photo.height*scale)/2,photo.width*scale,photo.height*scale);
+      context.restore();
+    }
+    context.fillStyle = "rgba(0,0,0,.34)"; context.fillRect(0,0,width,height);
+    context.fillStyle = "#f26a21"; context.fillRect(0,0,18,height);
+    context.fillStyle = "rgba(255,255,255,.16)"; context.fillRect(70,70,Math.min(320,width-140),58);
+    context.fillStyle = "#fff"; context.font = "700 28px Arial"; context.fillText(category,95,109);
+    context.textBaseline = "top"; context.font = `800 ${fontSize}px Noto Sans Tamil, Nirmala UI, Arial`;
+    wrapText(context,headline,70,height*.34,width-140,fontSize*1.38);
+    context.font = "700 31px Arial"; context.fillText("BATTICALOA",70,height-105);
+    context.fillStyle = "#f26a21"; context.fillText("360",272,height-105);
+    context.font = "500 23px Arial"; context.fillStyle = "rgba(255,255,255,.8)"; context.fillText("AI-assisted illustration - Editorial review required",70,height-61);
+  }, [headline,category,template,format,fontSize,photo]);
+
+  function upload(file?:File) { if (!file) return; const image = new Image(); image.onload = () => setPhoto(image); image.src = URL.createObjectURL(file); }
+  function download(kind:"png"|"jpeg") { const element = canvas.current; if (!element) return; const anchor = document.createElement("a"); anchor.href = element.toDataURL(`image/${kind}`,.92); anchor.download = `batticaloa360-${Date.now()}.${kind === "jpeg" ? "jpg" : "png"}`; anchor.click(); setNotice("Image downloaded."); }
+  async function save() {
+    const element = canvas.current;
+    if (!element || !selectedNewsItemId) return;
+    setSaving(true); setNotice("");
+    const blob = await new Promise<Blob|null>((resolve) => element.toBlob(resolve,"image/png"));
+    if (!blob) { setSaving(false); return; }
+    const [width,height] = sizes[format];
+    const form = new FormData();
+    form.set("file",blob,"batticaloa360.png"); form.set("newsItemId",selectedNewsItemId); if (seriesId) form.set("seriesId",seriesId);
+    form.set("template",template); form.set("width",String(width)); form.set("height",String(height)); form.set("headline",headline); form.set("category",category); form.set("format",format); form.set("fontSize",String(fontSize)); form.set("generationType",photo ? "licensed_photo" : "procedural");
+    try {
+      const body = await json<{image:SavedImage}>("/api/images",{method:"POST",body:form});
+      if (typeof body.image.metadata.seriesId === "string") updateDraft({seriesId:body.image.metadata.seriesId});
+      setNotice(`Image version ${body.image.metadata.version} saved to Supabase Storage.`);
+      queryClient.invalidateQueries({queryKey:["images"]});
+    } catch (error) { setNotice(error instanceof Error ? error.message : "Save failed."); }
+    finally { setSaving(false); }
+  }
+  const transition = useMutation({
+    mutationFn:(workflowStatus:EditorialStatus) => json<{image:SavedImage}>(`/api/images/${currentImage?.id}`,{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({workflowStatus})}),
+    onSuccess:(body) => { setNotice(`Image version ${body.image.metadata.version} moved to ${statusLabel(body.image.metadata.workflowStatus as EditorialStatus)}.`); queryClient.invalidateQueries({queryKey:["images"]}); },
+    onError:(error) => setNotice(error.message),
+  });
+  const status = currentImage && isEditorialStatus(currentImage.metadata.workflowStatus) ? currentImage.metadata.workflowStatus : "draft";
+
+  if (stories.isLoading) return <div className="card p-10 text-center"><LoaderCircle className="spin mx-auto mb-2"/>Loading saved stories…</div>;
+  if (!selectedStory) return <div className="card p-10 text-center">Import a story before creating an image.</div>;
+  return <div className="grid gap-5 xl:grid-cols-[360px_1fr]">
+    <aside className="card h-fit space-y-4 p-5">
+      <div><label className="mb-1.5 block text-sm font-black">Source story</label><select className="input" value={selectedNewsItemId} onChange={(event) => { setNewsItemId(event.target.value); setPhoto(null); setNotice(""); }}>{stories.data?.items.map((story) => <option key={story.id} value={story.id}>{story.headline}</option>)}</select></div>
+      <div><label className="mb-1.5 block text-sm font-black">Tamil headline</label><textarea className="input min-h-28 leading-7" lang="ta" value={headline} onChange={(event) => updateDraft({headline:event.target.value})}/></div>
+      <div><label className="mb-1.5 block text-sm font-black">Category</label><select className="input" value={category} onChange={(event) => updateDraft({category:event.target.value})}>{categories.map((value) => <option key={value}>{value}</option>)}</select></div>
+      <div className="grid grid-cols-2 gap-3"><div><label className="mb-1.5 block text-sm font-black">Template</label><select className="input" value={template} onChange={(event) => updateDraft({template:event.target.value as Template})}>{Object.keys(templates).map((value) => <option key={value}>{value}</option>)}</select></div><div><label className="mb-1.5 block text-sm font-black">Format</label><select className="input" value={format} onChange={(event) => updateDraft({format:event.target.value as Format})}><option value="square">1080 × 1080</option><option value="portrait">1080 × 1350</option><option value="story">1080 × 1920</option><option value="blogger">1200 × 630</option></select></div></div>
+      <div><div className="mb-1.5 flex justify-between text-sm font-black"><label>Headline size</label><span>{fontSize}px</span></div><input className="w-full accent-[#f26a21]" type="range" min="44" max="104" value={fontSize} onChange={(event) => updateDraft({fontSize:Number(event.target.value)})}/></div>
+      <label className="btn btn-secondary w-full"><Upload size={17}/>Upload licensed photograph<input className="hidden" type="file" accept="image/*" onChange={(event) => upload(event.target.files?.[0])}/></label>
+      <button className="btn btn-secondary w-full" onClick={() => {setPhoto(null);updateDraft({template:"Tourism"});setNotice("Economical generated background applied.");}}><Sparkles size={17}/>Generate background</button>
+      <p className="text-xs leading-5 text-[var(--muted)]">Tamil is rendered separately with Unicode shaping. Illustrations are labelled to avoid resembling event photography.</p>
+      {currentImage && <div className="rounded-xl border border-[var(--border)] p-3 text-sm"><div className="flex items-center gap-2 font-black"><History size={15}/>Saved version {String(currentImage.metadata.version)}</div><div className="mt-1 text-xs text-[var(--muted)]">{statusLabel(status)} · restored from Supabase</div></div>}
+    </aside>
+    <section className="card p-4 md:p-6">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3"><div><h2 className="font-black">Live composition</h2><p className="text-sm text-[var(--muted)]">Export-ready at the selected native resolution.</p></div><div className="flex flex-wrap gap-2"><button className="btn btn-secondary" disabled={saving} onClick={save}>{saving ? <LoaderCircle className="spin" size={16}/> : <Save size={16}/>}Save version</button><button className="btn btn-secondary" onClick={() => download("jpeg")}><ImagePlus size={16}/>JPG</button><button className="btn btn-primary" onClick={() => download("png")}><Download size={16}/>PNG</button></div></div>
+      <div className="grid min-h-[540px] place-items-center overflow-hidden rounded-xl bg-neutral-200 p-3 dark:bg-neutral-900"><canvas ref={canvas} className="max-h-[720px] max-w-full rounded-lg shadow-2xl" aria-label="Generated Batticaloa360 image preview"/></div>
+      {currentImage?.public_url && <div className="mt-4 flex items-center gap-3 rounded-xl border border-[var(--border)] p-3"><NextImage src={currentImage.public_url} alt="Most recently saved composition" width={96} height={96} unoptimized className="h-20 w-20 rounded-lg object-cover"/><div><b>Persisted production asset</b><p className="text-xs text-[var(--muted)]">Available again after refresh or sign-in.</p></div></div>}
+      {currentImage && <div className="mt-4 flex flex-wrap gap-2">{status === "draft" && <button className="btn btn-secondary" onClick={() => transition.mutate("ready_for_review")}><Send size={16}/>Submit for review</button>}{status === "ready_for_review" && <><button className="btn btn-secondary" onClick={() => transition.mutate("draft")}>Return to draft</button><button className="btn btn-primary" onClick={() => transition.mutate("approved")}><ShieldCheck size={16}/>Approve image</button></>}{status === "approved" && <button className="btn btn-secondary" onClick={() => transition.mutate("ready_for_review")}>Reopen review</button>}{status !== "archived" && <button className="btn btn-secondary" onClick={() => transition.mutate("archived")}>Archive</button>}{status === "archived" && <button className="btn btn-secondary" onClick={() => transition.mutate("draft")}>Restore draft</button>}</div>}
+      {notice && <p className="mt-3 flex items-center gap-2 text-sm font-bold" role="status"><Check size={16}/>{notice}</p>}
+    </section>
+  </div>;
+}
+
+function wrapText(context:CanvasRenderingContext2D,text:string,x:number,y:number,maxWidth:number,lineHeight:number) { const words=text.split(/\s+/);let line="";const lines:string[]=[];for(const word of words){const test=line?`${line} ${word}`:word;if(context.measureText(test).width>maxWidth&&line){lines.push(line);line=word}else line=test}if(line)lines.push(line);lines.slice(0,5).forEach((value,index)=>context.fillText(value,x,y+index*lineHeight)); }
