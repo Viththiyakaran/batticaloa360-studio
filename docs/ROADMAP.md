@@ -4,11 +4,11 @@ This roadmap prioritises a reliable editorial workflow before expensive media ge
 
 ## Current status
 
-The Phase 1 foundation is deployed on Netlify. The Supabase schema, row-level security policies, Storage buckets and administrator profile are installed. Production authentication configuration is being verified.
+The Phase 1 foundation is deployed on Netlify. The Supabase schema, row-level security policies, Storage buckets and administrator profile are installed. The production publishable key is verified, and the editorial screens now use persistent Supabase data. A final interactive administrator sign-in smoke test remains.
 
 ## Phase 1 - Working editorial MVP
 
-Status: **In progress - foundation complete, persistence integration next**
+Status: **In progress - persistent editorial workflow complete, final production smoke test next**
 
 - [x] Next.js App Router application with TypeScript and Tailwind CSS
 - [x] Responsive private dashboard with light and dark themes
@@ -20,10 +20,11 @@ Status: **In progress - foundation complete, persistence integration next**
 - [x] Editable content and working full-caption clipboard copy
 - [x] Tamil-safe branded image compositor with PNG/JPG downloads
 - [x] Safe development mode when paid credentials are unavailable
-- [ ] Correct the Netlify publishable-key value and verify administrator login
-- [ ] Replace seeded news with persistent Supabase CRUD
-- [ ] Persist sources, stories, verification decisions and drafts
-- [ ] Upload generated images to Supabase Storage
+- [x] Correct and independently verify the Netlify publishable-key value
+- [ ] Complete an interactive administrator login smoke test
+- [x] Replace seeded news with persistent Supabase CRUD
+- [x] Persist sources, stories, verification decisions and drafts
+- [x] Upload generated images to Supabase Storage
 - [ ] Add hourly RSS discovery adapters and automation logs
 - [ ] Complete an end-to-end production smoke test
 
@@ -99,4 +100,3 @@ Exit criteria: the studio operates safely and affordably as a dependable single-
 - Clearly label AI illustrations; never present them as event photography.
 - Keep paid operations disabled until credentials and budgets are configured.
 - Finish and verify each phase before starting the next major phase.
-
